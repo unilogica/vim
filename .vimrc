@@ -14,6 +14,32 @@ Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim' , { 'branch' : 'release' }
 Plug 'honza/vim-snippets'
 Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-commentary'
+
+
+" TypeScript
+Plug 'leafgarland/typescript-vim'
+
+" CoffeeScript
+Plug 'kchmck/vim-coffee-script'
+
+" JavaScript
+Plug 'pangloss/vim-javascript'
+Plug 'maxmellon/vim-jsx-pretty'
+
+" Prettifier
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'for': ['javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'php', 'yaml'] }
+
+
+"Plug 'yaegassy/coc-intelephense', {'do': 'yarn install --frozen-lockfile'}
+Plug 'yaegassy/coc-blade', {'do': 'yarn install --frozen-lockfile'}
+Plug 'yaegassy/coc-laravel', {'do': 'yarn install --frozen-lockfile'}
+Plug 'yaegassy/coc-nginx', {'do': 'yarn install --frozen-lockfile'}
+
+Plug 'Yggdroot/indentLine'
+"Plug 'pedrohddim-yaml-fold'
 
 if (has("nvim"))
     Plug 'nvim-lua/plenary.nvim'
@@ -51,11 +77,17 @@ set mouse=a          " Enable mouse support
 filetype on          " Detect and set the filetype option and trigger the FileType Event
 filetype plugin on   " Load the plugin file for the file type, if any
 filetype indent on   " Load the indent file for the file type, if any
+filetype plugin indent on
 
 set spell spelllang=pt_br " Correcao ortografica para portugues
 set nospell          " desliga a correcao por padrao
 
 set clipboard=unnamedplus
+
+" Prettifier """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:prettier#autoformat = 1
+let g:prettier#autoformat_require_pragma = 0
 
 " Themes """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if exists('+termguicolors')
@@ -89,8 +121,46 @@ nmap vv :vsplit<CR>
 " Close splits and others
 nmap qq :q<CR>
 
+" CMD+S  => SALVANDO ARQUIVO
+map <M-s> :w<kEnter>
+imap <M-s> <Esc>:w<kEnter>a
+
+" CMD+C => Copiando buffer
+vnoremap <M-c> "+ygv
+
+" CMD+A => Selecionar tudo
+nnoremap <M-A>a ggVG
+
+" TAB e SHIFT + TAB => Mover o bloco
+vmap <Tab> >gv
+vmap <S-Tab> <gv
+
+" Comentarios
+
+map <M-X> gcc
+imap <M-X> <Esc>gcca
+
+" CMD + Z => Undo
+
+map <M-Z> u
+imap <M-Z> <Esc>ua
+
+
 " autocmd """"""""""
 " autocmds aqui
+
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType php setlocal commentstring=//\ %s
+
+
+" YAML  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set foldlevelstart=20
+
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_lint_on_text_changed = 'never'
+
 
 function! HighlightWordUnderCursor()
     if getline(".")[col(".")-1] !~# '[[:punct:][:blank:]]'
@@ -155,6 +225,7 @@ set updatetime=300
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved
 set signcolumn=yes
+
 
 " Use tab for trigger completion with characters ahead and navigate
 " NOTE: There's always complete item selected by default, you may want to enable
@@ -324,16 +395,6 @@ imap <C-j> <Plug>(coc-snippets-expand-jump)
 " Use <leader>x for convert visual selected code to snippet
 xmap <leader>x  <Plug>(coc-convert-snippet)
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? coc#_select_confirm() :
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
 
 let g:coc_snippet_next = '<tab>'
 
@@ -394,3 +455,5 @@ nnoremap <space>eb :CocCommand explorer --preset buffer<CR>
 
 " List all presets
 nnoremap <space>el :CocList explPresets
+
+
