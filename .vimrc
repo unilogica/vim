@@ -13,9 +13,12 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim' , { 'branch' : 'release' }
 Plug 'honza/vim-snippets'
-Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
+Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
 
+" Auto pairs e auto close tags
+Plug 'jiangmiao/auto-pairs'
+Plug 'AndrewRadev/tagalong.vim'
 
 " TypeScript
 Plug 'leafgarland/typescript-vim'
@@ -39,7 +42,6 @@ Plug 'yaegassy/coc-laravel', {'do': 'yarn install --frozen-lockfile'}
 Plug 'yaegassy/coc-nginx', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'Yggdroot/indentLine'
-"Plug 'pedrohddim-yaml-fold'
 
 if (has("nvim"))
     Plug 'nvim-lua/plenary.nvim'
@@ -65,7 +67,7 @@ set smartcase        " Consider case if there is a upper case character
 set scrolloff=8      " Minimum number of lines to keep above and below the cursor
 set colorcolumn=100  " Draws a line at the given line to keep aware of the line size
 set signcolumn=yes   " Add a column on the left. Useful for linting
-set cmdheight=2      " Give more space for displaying messages
+set cmdheight=2      " Give more space for displaying messaiges
 set updatetime=100   " Time in miliseconds to consider the changes
 set encoding=utf-8   " The encoding should be utf-8 to activate the font icons
 set nobackup         " No backup files
@@ -456,4 +458,65 @@ nnoremap <space>eb :CocCommand explorer --preset buffer<CR>
 " List all presets
 nnoremap <space>el :CocList explPresets
 
+
+"  Fix Bug right insert spaces
+nnoremap <Right> <Right>
+inoremap <Right> <Right>
+
+" The `<c-u>` removes the current visual mode, so a function can be called
+xnoremap <buffer> p :<c-u>call <SID>Paste()<cr>
+
+" The <SID> above is the same as the s: here
+function! s:Paste()
+  call tagalong#Trigger()
+
+  " gv reselects the previously-selected area, and then we just paste
+  normal! gvp
+
+  call tagalong#Apply()
+endfunction
+
+" Fecha o buffer sem fechar a janela
+nnoremap <C-w>! :call DeleteCurBufferNotCloseWindow()<CR>
+
+func! DeleteCurBufferNotCloseWindow() abort
+    if &modified
+        echohl ErrorMsg
+        echom "E89: no write since last change"
+        echohl None
+    elseif winnr('$') == 1
+        bd
+    else  " multiple window
+        let oldbuf = bufnr('%')
+        let oldwin = winnr()
+        while 1   " all windows that display oldbuf will remain open
+            if buflisted(bufnr('#'))
+                b#
+            else
+                bn
+                let curbuf = bufnr('%')
+                if curbuf == oldbuf
+                    enew    " oldbuf is the only buffer, create one
+                endif
+            endif
+            let win = bufwinnr(oldbuf)
+            if win == -1
+                break
+            else        " there are other window that display oldbuf
+                exec win 'wincmd w'
+            endif
+        endwhile
+        " delete oldbuf and restore window to oldwin
+        exec oldbuf 'bd'
+        exec oldwin 'wincmd w'
+    endif
+endfunc
+
+" let g:codeium_disable_bindings = 1
+let g:codeium_enabled = v:true
+
+imap <script><silent><nowait><expr> <C-g> codeium#Accept()
+imap <C-;>   <Cmd>call codeium#CycleCompletions(1)<CR>
+imap <C-,>   <Cmd>call codeium#CycleCompletions(-1)<CR>
+imap <C-x>   <Cmd>call codeium#Clear()<CR>
 
