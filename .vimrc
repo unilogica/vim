@@ -33,7 +33,7 @@ Plug 'maxmellon/vim-jsx-pretty'
 " Prettifier
 Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
-  \ 'for': ['javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'php', 'yaml'] }
+  \ 'for': ['javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'yaml', 'php'] }
 
 
 "Plug 'yaegassy/coc-intelephense', {'do': 'yarn install --frozen-lockfile'}
@@ -85,11 +85,6 @@ set spell spelllang=pt_br " Correcao ortografica para portugues
 set nospell          " desliga a correcao por padrao
 
 set clipboard=unnamedplus
-
-" Prettifier """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:prettier#autoformat = 1
-let g:prettier#autoformat_require_pragma = 0
 
 " Themes """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if exists('+termguicolors')
@@ -152,7 +147,7 @@ imap <M-Z> <Esc>ua
 " autocmds aqui
 
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-autocmd FileType php setlocal commentstring=//\ %s
+autocmd FileType php setlocal ts=4 sts=4 sw=4 commentstring=//\ %s
 
 
 " YAML  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -192,8 +187,26 @@ let g:ale_fixers = {
 \   '*': ['trim_whitespace'],
 \}
 
-let g:ale_fix_on_save = 1
 
+" Instalar um linter para PHP
+let g:ale_linters = {
+\   'php': ['phpcs', 'phpmd', 'phpstan', 'psalm'],
+\}
+
+" Configurar opções específicas para o phpcs
+let g:ale_php_phpcs_standard = 'PSR2'
+
+" Configurar fixadores automáticos para PHP
+let g:ale_fixers = {
+\   'php': ['php_cs_fixer', 'phpcbf'],
+\}
+
+" Configurar php-cs-fixer para auto formatar o código ao salvar o arquivo
+let g:ale_php_php_cs_fixer_executable = 'php-cs-fixer'
+let g:ale_php_php_cs_fixer_options = '--rules=@PSR2,multiline_function_call'
+
+let g:ale_fix_on_save = 1
+let g:ale_fix_on_save_timeout = 1 " Espera 1 miliseconds antes de executar o fix
 
 
 if (has("nvim"))
@@ -519,4 +532,3 @@ imap <script><silent><nowait><expr> <C-g> codeium#Accept()
 imap <C-;>   <Cmd>call codeium#CycleCompletions(1)<CR>
 imap <C-,>   <Cmd>call codeium#CycleCompletions(-1)<CR>
 imap <C-x>   <Cmd>call codeium#Clear()<CR>
-
