@@ -12,6 +12,9 @@ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim' , { 'branch' : 'release' }
+" Plug 'neoclide/coc-phpactor'
+Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+
 Plug 'honza/vim-snippets'
 Plug 'tpope/vim-commentary'
 Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
@@ -37,9 +40,10 @@ Plug 'prettier/vim-prettier', {
 
 
 "Plug 'yaegassy/coc-intelephense', {'do': 'yarn install --frozen-lockfile'}
-Plug 'yaegassy/coc-blade', {'do': 'yarn install --frozen-lockfile'}
-Plug 'yaegassy/coc-laravel', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'yaegassy/coc-blade', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'yaegassy/coc-laravel', {'do': 'yarn install --frozen-lockfile'}
 Plug 'yaegassy/coc-nginx', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'MehrAlsNix/coc-intelephense', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'Yggdroot/indentLine'
 
@@ -147,7 +151,7 @@ imap <M-Z> <Esc>ua
 " autocmds aqui
 
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-autocmd FileType php setlocal ts=4 sts=4 sw=4 commentstring=//\ %s
+autocmd FileType php setlocal ts=4 sts=4 sw=4 iskeyword+=$ commentstring=//\ %s
 
 
 " YAML  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -183,9 +187,17 @@ nmap <C-a> :NERDTreeToggle<CR>
 let g:ale_linter_aliases = {'jsx': ['css', 'javascript']}
 let g:ale_linters = {'jsx': ['stylelint', 'eslint']}
 
+" let g:ale_fixers = {
+" \   '*': ['trim_whitespace'],
+" \}
+
 let g:ale_fixers = {
-\   '*': ['trim_whitespace'],
-\}
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'javascript': ['eslint', 'prettier'],
+    \ 'typescript': ['eslint', 'prettier'],
+    \ 'typescriptreact': ['eslint', 'prettier'],
+    \ 'php': ['php_cs_fixer', 'phpcbf'],
+    \ }
 
 
 " Instalar um linter para PHP
@@ -196,14 +208,15 @@ let g:ale_linters = {
 " Configurar opções específicas para o phpcs
 let g:ale_php_phpcs_standard = 'PSR2'
 
-" Configurar fixadores automáticos para PHP
-let g:ale_fixers = {
-\   'php': ['php_cs_fixer', 'phpcbf'],
-\}
-
 " Configurar php-cs-fixer para auto formatar o código ao salvar o arquivo
 let g:ale_php_php_cs_fixer_executable = 'php-cs-fixer'
 let g:ale_php_php_cs_fixer_options = '--rules=@PSR2,multiline_function_call'
+
+
+" Configurações do ALE para TypeScript
+let g:ale_typescript_typescript_eslint_options = '--fix'
+let g:ale_typescript_react_typescript_eslint_options = '--fix'
+
 
 let g:ale_fix_on_save = 1
 let g:ale_fix_on_save_timeout = 1 " Espera 1 miliseconds antes de executar o fix
@@ -222,7 +235,7 @@ endif
 
 " COC """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:coc_global_extensions = [ 'coc-snippets', 'coc-explorer', ]
+let g:coc_global_extensions = [ 'coc-snippets', 'coc-explorer', 'coc-phpactor', 'coc-tsserver' ]
 
 " https://raw.githubusercontent.com/neoclide/coc.nvim/master/doc/coc-example-config.vim
 
@@ -305,7 +318,7 @@ nmap <leader>f  <Plug>(coc-format-selected)
 augroup mygroup
   autocmd!
   " Setup formatexpr specified filetype(s)
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  autocmd FileType typescript,json,typescriptreact,javascript setl formatexpr=CocAction('formatSelected') shiftwidth=2 tabstop=2 softtabstop=2
   " Update signature help on jump placeholder
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
@@ -532,3 +545,42 @@ imap <script><silent><nowait><expr> <C-g> codeium#Accept()
 imap <C-;>   <Cmd>call codeium#CycleCompletions(1)<CR>
 imap <C-,>   <Cmd>call codeium#CycleCompletions(-1)<CR>
 imap <C-x>   <Cmd>call codeium#Clear()<CR>
+
+" CoC PHP LSP
+
+" Select range based on AST
+nmap <silent><Leader>r <Plug>(coc-range-select)
+xmap <silent><Leader>r <Plug>(coc-range-select)
+
+" Navigations
+nmap <Leader>o <Plug>(coc-definition)
+nmap <Leader>O <Plug>(coc-type-definition)
+nmap <Leader>I <Plug>(coc-implementation)
+nmap <Leader>R <Plug>(coc-references)
+
+" List code actions available for the current buffer
+nmap <leader>ca  <Plug>(coc-codeaction)
+
+" Use <CR> to validate completion (allows auto import on completion)
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Hover
+nmap K :call <SID>show_documentation()<CR>
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Text objects for functions and classes (uses document symbol provider)
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+autocmd CursorHold * silent call CocActionAsync('highlight')
