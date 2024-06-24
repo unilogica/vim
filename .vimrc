@@ -21,7 +21,7 @@ Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
 
 " Auto pairs e auto close tags
 Plug 'jiangmiao/auto-pairs'
-Plug 'AndrewRadev/tagalong.vim'
+" Plug 'AndrewRadev/tagalong.vim'
 
 " TypeScript
 Plug 'leafgarland/typescript-vim'
@@ -219,7 +219,6 @@ let g:ale_typescript_react_typescript_eslint_options = '--fix'
 
 
 let g:ale_fix_on_save = 1
-let g:ale_fix_on_save_timeout = 1 " Espera 1 miliseconds antes de executar o fix
 
 
 if (has("nvim"))
@@ -548,24 +547,29 @@ imap <C-x>   <Cmd>call codeium#Clear()<CR>
 
 " CoC PHP LSP
 
-" Select range based on AST
-nmap <silent><Leader>r <Plug>(coc-range-select)
-xmap <silent><Leader>r <Plug>(coc-range-select)
+" " Select range based on AST
+" nmap <silent><Leader>r <Plug>(coc-range-select)
+" xmap <silent><Leader>r <Plug>(coc-range-select)
 
-" Navigations
-nmap <Leader>o <Plug>(coc-definition)
-nmap <Leader>O <Plug>(coc-type-definition)
-nmap <Leader>I <Plug>(coc-implementation)
-nmap <Leader>R <Plug>(coc-references)
+" " Navigations
+" nmap <Leader>o <Plug>(coc-definition)
+" nmap <Leader>O <Plug>(coc-type-definition)
+" nmap <Leader>I <Plug>(coc-implementation)
+" nmap <Leader>R <Plug>(coc-references)
 
-" List code actions available for the current buffer
-nmap <leader>ca  <Plug>(coc-codeaction)
+" " List code actions available for the current buffer
+" nmap <leader>ca  <Plug>(coc-codeaction)
 
-" Use <CR> to validate completion (allows auto import on completion)
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" " Use <CR> to validate completion (allows auto import on completion)
+" inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
-" Hover
-nmap K :call <SID>show_documentation()<CR>
+
+" " Hover
+nmap <C-K> :call <SID>show_documentation()<CR>
+
+" Mapeia a combinação de teclas CTRL+K para chamar a função show_documentation no modo visual
+vmap <C-K> <Esc>:call <SID>show_documentation()<CR>gv
+
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
@@ -574,13 +578,31 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Text objects for functions and classes (uses document symbol provider)
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" " Text objects for functions and classes (uses document symbol provider)
+" xmap if <Plug>(coc-funcobj-i)
+" omap if <Plug>(coc-funcobj-i)
+" xmap af <Plug>(coc-funcobj-a)
+" omap af <Plug>(coc-funcobj-a)
+" xmap ic <Plug>(coc-classobj-i)
+" omap ic <Plug>(coc-classobj-i)
+" xmap ac <Plug>(coc-classobj-a)
+" omap ac <Plug>(coc-classobj-a)
+" " autocmd CursorHold * silent call CocActionAsync('highlight')\\
+
+
+" Mapeamento para mover linhas no modo visual
+vnoremap <A-Up> :move '<-2<CR>gv=gv
+vnoremap <A-Down> :move '>+1<CR>gv=gv
+
+" Mapeamento para mover linhas no modo normal
+nnoremap <A-Up> :m .-2<CR>==
+nnoremap <A-Down> :m .+1<CR>==
+
+" Mapeamento para mover linhas no modo de inserção
+inoremap <silent> <A-Up> <Esc>:m .-2<CR>==gi
+inoremap <silent> <A-Down> <Esc>:m .+1<CR>==gi
+
+" Mapeamento para mover seleção no modo de inserção se houver uma seleção visual ativa
+xnoremap <A-Up> :m '<-2<CR>gv=gv
+xnoremap <A-Down> :m '>+1<CR>gv=gv
