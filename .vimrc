@@ -1,4 +1,4 @@
-let mapleader = ','
+let mapleader = '\'
 
 call plug#begin()
 " Plugins aqui
@@ -80,6 +80,7 @@ set splitright       " Create the vertical splits to the right
 set splitbelow       " Create the horizontal splits below
 set autoread         " Update vim after file update from outside
 set mouse=a          " Enable mouse support
+" set autochdir        " Your working directory will always be the same as your working directory
 filetype on          " Detect and set the filetype option and trigger the FileType Event
 filetype plugin on   " Load the plugin file for the file type, if any
 filetype indent on   " Load the indent file for the file type, if any
@@ -606,3 +607,28 @@ inoremap <silent> <A-Down> <Esc>:m .+1<CR>==gi
 " Mapeamento para mover seleção no modo de inserção se houver uma seleção visual ativa
 xnoremap <A-Up> :m '<-2<CR>gv=gv
 xnoremap <A-Down> :m '>+1<CR>gv=gv
+
+" Option+Shift+Down: Copy the current line/block and move it down
+nnoremap <A-S-Down> :t.<CR>==
+vnoremap <A-S-Down> y'>p`[v`]=
+
+" Option+Shift+Up: Copy the current line/block and move it up
+nnoremap <A-S-Up> :t-1<CR>==
+vnoremap <A-S-Up> y'<Esc>kPgv`]=
+
+" Back Hole Register "_ for d not cut text
+nnoremap d "_d
+vnoremap d "_d
+
+" Configurar um timer para chamar o comando CocRestart a cada hora (3600000 ms)
+let g:timer_id = timer_start(3600000, {-> execute('CocRestart')}, {'repeat': -1})
+
+
+" " COC FIX """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" command! -nargs=* -range CocAction :call coc#rpc#notify('codeActionRange', [, , ])
+" command! -nargs=* -range CocFix :call coc#rpc#notify('codeActionRange', [, , 'quickfix'])
+command! -nargs=0 CocAction :call coc#rpc#notify('codeActionRange', [line('.'), col('.'), line('.'), col('.')])
+command! -nargs=0 CocFix :call coc#rpc#notify('codeActionRange', [line('.'), col('.'), line('.'), col('.'), 'quickfix'])
+
+nnoremap <leader>a :call CocAction('codeAction')<CR>
+nnoremap <leader>f :call CocAction('quickfix')<CR>
