@@ -8,9 +8,14 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons'
 Plug 'sheerun/vim-polyglot'
 Plug 'preservim/nerdtree'
+" Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }
+
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'dense-analysis/ale'
+
+" Plug 'dense-analysis/ale'
+Plug 'dense-analysis/ale', { 'on': 'ALEEnable' }
+
 Plug 'neoclide/coc.nvim' , { 'branch' : 'release' }
 " Plug 'neoclide/coc-phpactor'
 Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
@@ -24,14 +29,14 @@ Plug 'jiangmiao/auto-pairs'
 " Plug 'AndrewRadev/tagalong.vim'
 
 " TypeScript
-Plug 'leafgarland/typescript-vim'
+" Plug 'leafgarland/typescript-vim'
 
 " CoffeeScript
-Plug 'kchmck/vim-coffee-script'
+" Plug 'kchmck/vim-coffee-script'
 
 " JavaScript
-Plug 'pangloss/vim-javascript'
-Plug 'maxmellon/vim-jsx-pretty'
+" Plug 'pangloss/vim-javascript'
+" Plug 'maxmellon/vim-jsx-pretty'
 
 " Prettifier
 Plug 'prettier/vim-prettier', {
@@ -219,7 +224,7 @@ let g:ale_typescript_typescript_eslint_options = '--fix'
 let g:ale_typescript_react_typescript_eslint_options = '--fix'
 
 
-let g:ale_fix_on_save = 1
+" let g:ale_fix_on_save = 1
 
 
 if (has("nvim"))
@@ -235,7 +240,8 @@ endif
 
 " COC """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:coc_global_extensions = [ 'coc-snippets', 'coc-explorer', 'coc-phpactor', 'coc-tsserver' ]
+" let g:coc_global_extensions = [ 'coc-snippets', 'coc-explorer', 'coc-phpactor', 'coc-tsserver' ]
+let g:coc_global_extensions = [ 'coc-phpactor', 'coc-tsserver' ]
 
 " https://raw.githubusercontent.com/neoclide/coc.nvim/master/doc/coc-example-config.vim
 
@@ -632,3 +638,63 @@ command! -nargs=0 CocFix :call coc#rpc#notify('codeActionRange', [line('.'), col
 
 nnoremap <leader>a :call CocAction('codeAction')<CR>
 nnoremap <leader>f :call CocAction('quickfix')<CR>
+
+" " Formataçao / Identacao """"""""""""""""""""""""""""'""""""""""""""""""""""""'""""""""""""""""""""""""
+
+" Configuração do PhpCsFixer para PHP
+autocmd BufReadPre,BufNewFile *.php let b:formatter = 'php-cs-fixer'
+function! FormatPHP()
+    if exists("b:formatter") && b:formatter ==# 'php-cs-fixer'
+        " Salva o buffer antes de executar
+        silent write
+        
+        " Caminho completo para o php-cs-fixer
+        let l:php_cs_fixer_path = system('which php-cs-fixer')[:-2]
+        
+        if empty(l:php_cs_fixer_path)
+            echohl ErrorMsg
+            echom "php-cs-fixer não encontrado no PATH"
+            echohl None
+            return
+        endif
+        
+        " Caminho do arquivo atual
+        let l:file_path = expand('%:p')
+        
+        " Executa o comando de forma síncrona com regras padrão
+        let l:cmd = l:php_cs_fixer_path . 
+                    \ ' fix ' . shellescape(l:file_path) . 
+                    \ ' --rules=@PSR2' . 
+                    \ ' --allow-risky=yes' . 
+                    \ ' --using-cache=no'
+        
+        " Executa o comando
+        let l:output = system(l:cmd)
+        
+        " Verifica erros
+        if v:shell_error
+            echohl ErrorMsg
+            echom "Erro ao executar php-cs-fixer: " . l:output
+            echohl None
+        else
+            " Recarrega o arquivo explicitamente
+            edit!
+            echo "Formatado com php-cs-fixer"
+        endif
+    endif
+endfunction
+
+" Atalho para formatar manualmente com PhpCsFixer
+nnoremap <leader>f :call FormatPHP()<CR>
+
+" Ativar formatação automática ao salvar
+augroup PhpCsFixer
+    autocmd!
+    autocmd BufWritePre *.php call FormatPHP()
+augroup END
+
+" Função para executar o Prettier em arquivos JS, JSX, TS e TSX
+
+" Ativar formatação com Prettier ao salvar arquivos JS, JSX, TS e TSX
+autocmd BufWritePre *.js,*.jsx,*.ts,*.tsx Prettier
+
