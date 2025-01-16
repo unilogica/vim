@@ -34,4 +34,4 @@ Depois autenticar o Codeium
 
 Abra a URL de autenticação segurando (**⌘**) CMD e clicando no link, após copie o token e cole no terminal do Neovim
 
-![[https://static.unilogica.com/auth-codeium.png]]
+![Auth Codeium](https://static.unilogica.com/auth-codeium.png)
