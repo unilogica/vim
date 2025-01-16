@@ -52,10 +52,37 @@ Plug 'yaegassy/coc-nginx', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'Yggdroot/indentLine'
 
+" Plug 'markonm/traces.vim'
+
+" if (has("nvim"))
+"     Plug 'nvim-lua/plenary.nvim'
+"     Plug 'nvim-telescope/telescope.nvim'
+"     Plug 'smjonas/live-command.nvim'
+"     autocmd VimEnter * lua require("live-command").setup({ 
+"         \ commands = { 
+"         \   S = { 
+"         \     cmd = "Subvert"
+"         \   },
+"         \   Norm = { 
+"         \     cmd = "norm"
+"         \   },
+"         \ } 
+"     \})
+"     Plug 'tpope/vim-abolish'
+" endif
+
+" if has('nvim')
+"     Plug 'smjonas/live-command.nvim'
+"     autocmd VimEnter * call luaeval('require("live-command").setup({commands = {S = {cmd = "Subvert"}, Norm = {cmd = "norm"}}})')
+"     Plug 'tpope/vim-abolish'
+" endif
+
 if (has("nvim"))
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
 endif
+
+Plug 'tpope/vim-abolish'
 
 call plug#end()
 
@@ -698,3 +725,11 @@ augroup END
 " Ativar formatação com Prettier ao salvar arquivos JS, JSX, TS e TSX
 autocmd BufWritePre *.js,*.jsx,*.ts,*.tsx Prettier
 
+" ============
+"
+"
+" Função para destacar padrões em substituições do vim-abolish
+"
+"
+
+set inccommand=nosplit
